@@ -17,7 +17,19 @@ const server = http.createServer((req, res) => {
   }
 
   if (url === "/msg" && method === "POST") {
-    fs.writeFileSync("message.txt", "Test");
+    const body = [];
+    req.on("data", chunk => {
+      console.log(chunk);
+      body.push(chunk);
+    });
+
+    req.on("end", () => {
+      const parseBody = Buffer.concat(body).toString();
+      console.log(parseBody);
+      const msg = parseBody.split("=")[1];
+      fs.writeFileSync("message.txt", msg);
+    });
+
     res.statusCode = 302;
     res.setHeader("Location", "/");
     return res.end();
