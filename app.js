@@ -5,7 +5,11 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
-const adminRoutes = require('./routes/admin');
+// configure template engine
+app.set('view engine', 'pug');
+app.set('views', 'views');
+
+const adminData = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 // use bodyParser
@@ -13,7 +17,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 // access static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/admin', adminRoutes);
+app.use('/admin', adminData.routes);
 app.use(shopRoutes);
 
 
