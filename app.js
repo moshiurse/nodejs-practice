@@ -8,11 +8,12 @@ const app = express();
 
 
 // Handlebars engine configure
-app.engine('handlebars', expressHbs({layoutsDir: 'views/layouts/', defaultLayout: 'main-layout', extname: 'handlebars'}));
+// app.engine('handlebars', expressHbs({layoutsDir: 'views/layouts/', defaultLayout: 'main-layout', extname: 'handlebars'}));
 
 // configure template engine
 // app.set('view engine', 'pug'); // Pug
-app.set('view engine', 'handlebars'); //handlebars
+// app.set('view engine', 'handlebars'); //handlebars
+app.set('view engine', 'ejs'); //EJS
 app.set('views', 'views');
 
 const adminData = require('./routes/admin');
