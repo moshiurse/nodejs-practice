@@ -3,6 +3,8 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 
+const errorController = require('./controllers/error');
+
 const expressHbs = require('express-handlebars');
 const app = express();
 
@@ -16,7 +18,7 @@ const app = express();
 app.set('view engine', 'ejs'); //EJS
 app.set('views', 'views');
 
-const adminData = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 // use bodyParser
@@ -24,13 +26,11 @@ app.use(bodyParser.urlencoded({extended: false}));
 // access static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/admin', adminData.routes);
+app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
 
 // use middleware for 404 Page not found
-app.use((req, res, next) => {
-    res.status(404).render('404', {title : "Page not found"});
-})
+app.use(errorController.get404Page);
 
 app.listen(3000);
