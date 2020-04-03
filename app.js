@@ -1,46 +1,36 @@
-const http = require("http");
-const fs = require("fs");
+const path = require('path');
 
-const server = http.createServer((req, res) => {
-  //   console.log(req.url, req.method, req.headers);
-  const url = req.url;
-  const method = req.method;
+const express = require('express');
+const bodyParser = require('body-parser');
 
-  if (url === "/") {
-    res.write("<html>");
-    res.write("<head><title>Nodejs Practice</title></head>");
-    res.write(
-      "<body><form action='/msg' method='POST'><input type='text' name='msg'/><button type='submit'>Send</button></form></body>"
-    );
-    res.write("</html>");
-    return res.end();
-  }
+const errorController = require('./controllers/error');
 
-  if (url === "/msg" && method === "POST") {
-    const body = [];
-    req.on("data", chunk => {
-      console.log(chunk);
-      body.push(chunk);
-    });
+const expressHbs = require('express-handlebars');
+const app = express();
 
-    req.on("end", () => {
-      const parseBody = Buffer.concat(body).toString();
-      console.log(parseBody);
-      const msg = parseBody.split("=")[1];
-      fs.writeFileSync("message.txt", msg);
-    });
 
-    res.statusCode = 302;
-    res.setHeader("Location", "/");
-    return res.end();
-  }
+// Handlebars engine configure
+// app.engine('handlebars', expressHbs({layoutsDir: 'views/layouts/', defaultLayout: 'main-layout', extname: 'handlebars'}));
 
-  //   res.setHeader("Content-Type", "text/html");
-  //   res.write("<html>");
-  //   res.write("<head><title>Message</title></head>");
-  //   res.write("<body><h1>Hello from nodejs Response</h1></body>");
-  //   res.write("</html>");
-  //   res.end();
-});
+// configure template engine
+// app.set('view engine', 'pug'); // Pug
+// app.set('view engine', 'handlebars'); //handlebars
+app.set('view engine', 'ejs'); //EJS
+app.set('views', 'views');
 
-server.listen(3000);
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop');
+
+// use bodyParser
+app.use(bodyParser.urlencoded({extended: false}));
+// access static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/admin', adminRoutes);
+app.use(shopRoutes);
+
+
+// use middleware for 404 Page not found
+app.use(errorController.get404Page);
+
+app.listen(3000);
