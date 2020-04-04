@@ -2,10 +2,8 @@
 
 <link rel="stylesheet" href="/css/add-product.css">
 </head>
-
-<%- include('../includes/navigation.ejs') %>
-
 <body>
+<%- include('../includes/navigation.ejs') %>
         <main>
             <% if(prods.length > 0) { %>
             <div class="grid">
@@ -22,6 +20,7 @@
                         <p class="product__description"><%= product.description %></p>
                     </div>
                     <div class="card__actions">
+
                         <a href="/products/<%= product.id %>" class="btn">Details</a>
                         <form action="/cart" method="POST">
                             <button class="btn" type="submit">Add To cart</button>                        

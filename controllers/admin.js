@@ -29,7 +29,6 @@ exports.getProducts = (req, res, next) => {
             prods : products,
             title : "Products",
             path: '/admin/products'
-        });
     });
-
+    });
 };
