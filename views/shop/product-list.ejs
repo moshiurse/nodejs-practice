@@ -1,6 +1,6 @@
 <%- include('../includes/head.ejs') %>
 
-    <link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/add-product.css">
 </head>
 
 <%- include('../includes/navigation.ejs') %>
@@ -22,7 +22,8 @@
                         <p class="product__description"><%= product.description %></p>
                     </div>
                     <div class="card__actions">
-                        <form action="/add-to-cart" method="POST">
+                        <a href="/products/<%= product.id %>" class="btn">Details</a>
+                        <form action="/cart" method="POST">
                             <button class="btn" type="submit">Add To cart</button>                        
                         </form>
                     </div>
