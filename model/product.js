@@ -13,7 +13,8 @@ module.exports = class Product {
     }
 
     save(){
-       
+        return db.execute('insert into products (title, imageUrl, description, price) values (?, ?, ?, ?)', 
+       [this.title, this.imageUrl, this.description, this.price]);
     }
 
     static delete(id){
@@ -25,7 +26,8 @@ module.exports = class Product {
     }
 
     static fetchProduct(id, callback){
-       
+        return db.execute('select * from products where id = ?', 
+       [id]);
     }
 
 }

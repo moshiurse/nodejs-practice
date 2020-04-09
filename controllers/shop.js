@@ -16,15 +16,17 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
     productId = req.params.pId;
-    Product.fetchProduct(productId, product => {
+    Product.fetchProduct(productId)
+    .then(([product]) => {
         res.render('shop/product-detail', 
         {
-            product: product, 
+            product: product[0], 
             title: product.title, 
             path: '/products'
         });
     })
-    
+    .catch(err => console.log(err))
+
 }
 
 exports.getIndex = (req, res, next) => {
