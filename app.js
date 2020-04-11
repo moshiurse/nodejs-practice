@@ -4,6 +4,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const sequelize = require('./util/database');
+const Product = require('./model/product');
+const User = require('./model/user');
 
 const errorController = require('./controllers/error');
 
@@ -28,6 +30,16 @@ app.use(bodyParser.urlencoded({extended: false}));
 // access static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// middleware sfor store user
+app.use((req, res, next) => {
+    User.findByPk(1)
+    .then(user => {
+        req.user = user;
+        next();
+    })
+    .catch(err => console.log(err));
+})
+
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
@@ -35,7 +47,21 @@ app.use(shopRoutes);
 // use middleware for 404 Page not found
 app.use(errorController.get404Page);
 
-sequelize.sync().then(result => {
+// 
+Product.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});
+User.hasMany(Product);
+// sync with table by sequelize
+sequelize.sync({force: true})
+.then(result => {
+    return User.findByPk(1);
+})
+.then(user => {
+    if(!user){
+        return User.create({name: "Moshiur", email: "moshiurse@gmail.com"});
+    }
+    return user;
+})
+.then(user => {
     app.listen(3000);
 })
 .catch(err => {
