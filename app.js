@@ -9,6 +9,7 @@ const User = require('./model/user');
 const Cart = require('./model/cart');
 const CartItem = require('./model/cart-item');
 
+
 const errorController = require('./controllers/error');
 
 const expressHbs = require('express-handlebars');
@@ -73,6 +74,7 @@ sequelize
     return user.createCart();
 })
 .then(cart => {
+
     app.listen(3000);
 })
 .catch(err => {
