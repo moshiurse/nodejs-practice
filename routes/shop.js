@@ -10,7 +10,7 @@ router.get('/', shopController.getIndex);
 
 router.get('/products', shopController.getProducts);
 
-// router.get('/products/:pId', shopController.getProduct);
+router.get('/products/:pId', shopController.getProduct);
 
 // router.get('/cart', shopController.getCart);
 
