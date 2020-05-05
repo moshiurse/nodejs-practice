@@ -2,9 +2,9 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const errorController = require('./controllers/error');
-const mongoConnect = require('./util/database').mongoConnect;
 
 const User = require('./model/user');
 
@@ -33,6 +33,15 @@ app.use(shopRoutes);
 
 // app.use(errorController.get404);
 
-mongoConnect(() => {
+
+mongoose.connect(
+  'mongodb+srv://root:12345@moshiurscluster-mkbxp.mongodb.net/test?retryWrites=true&w=majority',
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }
+  )
+.then(result => {
   app.listen(3000);
-});
+})
+.catch(err => console.log(err));
