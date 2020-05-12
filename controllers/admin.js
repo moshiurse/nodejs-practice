@@ -1,6 +1,10 @@
 const Product = require('../model/product');
 
 exports.getAddProduct = (req, res, next) => {
+    // not minimal way to do route protection
+    // if(!req.session.isLoggedIn){
+    //     return res.redirect('/login');
+    // }
     res.render('admin/edit-product', 
     {
         title: 'Add Product', 
