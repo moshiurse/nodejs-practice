@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const User =  require('../model/user');
@@ -146,6 +147,135 @@ exports.postSignup = (req, res, next) => {
     });
     })
 })
+    .catch(err => console.log(err));
+};
+
+exports.getReset = (req, res, next) => {
+    let msg = req.flash('error');
+    if(msg.length > 0){
+        msg = msg[0];
+    }else{
+        msg = null;
+    }
+
+    res.render('auth/reset', 
+        {
+           path: '/reset',
+           title: 'Reset Password',
+           errorMsg: msg
+        });
+};
+
+exports.postReset = (req, res, next) => {
+    crypto.randomBytes(32, (err, buffer) => {
+        if(err){
+            return res.redirect('/reset');
+        }
+        const token = buffer.toString('hex');
+
+        User.findOne({email: req.body.email})
+        .then(user => {
+            if(!user){
+                    req.flash('error', "No Account found!!!");
+                    return res.redirect('/reset');
+            }
+            user.resetToken = token;
+            user.resetTokenExpiration = Date.now() + 3600000;
+            return user.save();
+        })
+        .then(result => {
+            res.redirect('/');
+            // nodemailer sending mail
+            const output = `
+            <h3>Reset Password option</h3>
+            <p>Click this Link <a href="http:://localhost:3000/reset/${token}">Link</a> to reset your password</p>
+            `;
+
+            // create reusable transporter object using the default SMTP transport
+            let transporter = nodemailer.createTransport({
+            host: 'mail.moshiurse.com',
+            port: 587,
+            secure: false, // true for 465, false for other ports
+            auth: {
+            user: 'mailtest@moshiurse.com',
+            pass: 'tUzEf4zo+dgj'  // generated ethereal password
+            },
+            tls:{
+            rejectUnauthorized:false
+            }
+            });
+
+            // setup email data with unicode symbols
+            let mailOptions = {
+            from: '"Moshiur Rahman" <mailtest@moshiurse.com>', // sender address
+            to: req.body.email, // list of receivers 
+            subject: 'Reset your Password', // Subject line
+            text: 'hey reset your pass', // plain text body
+            html: output // html body
+            };
+
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return console.log(error);
+            }
+            console.log('Message sent: %s', info.messageId);   
+            console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+            });
+        })
+        .catch(err => console.log(err));
+    })
+};
+
+exports.getNewPassword = (req, res, next) => {
+    const token = req.params.token;
+    User.findOne({resetToken: token, resetTokenExpiration: {$gt: Date.now()}})
+    .then(user => {
+        let msg = req.flash('error');
+        if(msg.length > 0){
+            msg = msg[0];
+        }else{
+            msg = null;
+        }
+    
+        res.render('auth/new-password', 
+            {
+               path: '/new-password',
+               title: 'New Password',
+               errorMsg: msg,
+               userId: user._id.toString(),
+               passwordToken: token
+            });
+
+    })
+    .catch(err => console.log(err));
+};
+
+exports.postNewPassword = (req, res, next) => {
+    const password = req.body.password;
+    const userId = req.body.userId;
+    const passwordToken = req.body.passwordToken;
+    let resetUser;
+
+    User.findOne({
+        resetToken: passwordToken,
+        resetTokenExpiration: {$gt: Date.now()},
+        _id: userId
+    })
+    .then(user => {
+        resetUser = user;
+        return bcrypt.hash(password, 12);
+    })
+    .then(hashedPass => {
+        resetUser.password = hashedPass;
+        resetUser.resetToken = undefined;
+        resetUser.resetTokenExpiration = undefined;
+        return resetUser.save();
+    })
+    .then(result => {
+        res.redirect('/login');
+    })
     .catch(err => console.log(err));
 };
 
